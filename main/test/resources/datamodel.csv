@@ -1,0 +1,8 @@
+table           ,pk       ,fk_table,fk_col   ,fk_table_jointype
+xmltable        ,_id      ,        ,         ,
+carbank_xmltable,_secid   ,xmltable,_id      ,
+species_xmltable,col      ,xmltable,_id      ,
+red_xmltable    ,MedlineID,xmltable,_id      ,
+product         ,id       ,purchase,productid,LEFT
+purchase        ,id       ,        ,         ,
+store           ,id       ,purchase,storeid  ,INNER

@@ -1,0 +1,152 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="file:/C:/Users/vimirji/.markdownNavigator/multimarkdown_layout.css" rel="stylesheet">
+    <style>
+
+body.multimarkdown-preview,
+body.multimarkdown-wiki-preview {
+    font-size: 11px;
+}
+
+
+
+
+    </style>
+    <link href="file:/C:/Users/vimirji/.markdownNavigator/multimarkdown_default.css" rel="stylesheet">
+</head>
+<body class="multimarkdown-preview">
+<div class="content">
+    <div class="page-header">SETUP.MD</div>
+    <div class="hr"></div>
+    <h1 id="Vitthal-data-transformation" md-pos="2-30"><a href="#Vitthal-data-transformation"
+                                                          name="Vitthal-data-transformation">Vitthal Data
+        Transformation</a></h1>
+    <p md-pos="31-85">Data transformation simplified for any Data platform.</p>
+    <p md-pos="86-138"><code md-pos="87-96">Features:</code> The package has complete ETL process -</p>
+    <ol>
+        <li md-pos="138-219">Uses metadata, transformation &amp; data model information to design ETL pipeline</li>
+        <li md-pos="219-281">Builds target transformation SparkSQL and Spark Dataframes</li>
+        <li md-pos="281-317">Builds source &amp; target Hive DDLs</li>
+        <li md-pos="317-431">Validates DataFrames, extends core classes, defines DataFrame transformations, and provides
+            UDF SQL functions.
+        </li>
+        <li md-pos="431-641">Supports below fundamental transformations for ETL pipeline -
+            <ul>
+                <li md-pos="499-539">Filters on source &amp; target dataframes</li>
+                <li md-pos="542-600">Grouping and Aggregations on source &amp; target dataframes</li>
+                <li md-pos="603-641">Heavily nested queries / dataframes</li>
+            </ul>
+        </li>
+        <li md-pos="641-734">Has complex and heavily nested XML, JSON, Parquet &amp; ORC parser to nth
+            level of nesting
+        </li>
+        <li md-pos="734-825">Has Unit test cases designed on function/method level &amp; measures
+            source code coverage
+        </li>
+        <li md-pos="825-883">Has information about delpoying to higher environments</li>
+        <li md-pos="883-940">Has API documentation for customization &amp; enhancement</li>
+    </ol>
+    <p md-pos="941-971"><code md-pos="942-955">Enhancements:</code> In progress -</p>
+    <ol>
+        <li md-pos="971-1083">Integrate Audit and logging - Define Error codes, log process failures, Audit progress
+            &amp; runtime information
+        </li>
+    </ol>
+    <h2 id="setup" md-pos="1087-1092"><a href="#setup" name="setup">Setup</a></h2>
+    <p md-pos="1093-1292">Make sure you have Python &gt;= 3.0.
+        If you do not have pip tool, get it from https://pypi.org/project/pip/ and execute below command
+        <strong md-pos="1226-1288">If you already have Python &amp; pip installed skip the below step</strong></p>
+    <pre md-pos="1292-1318"><code md-pos="1296-1314">python get-pip.py
+</code></pre>
+    <p md-pos="1319-1369">Once you have Python and pip follow steps below -</p>
+    <ol>
+        <li class="p" md-pos="1369-1862">
+            <p class="p" md-pos="1372-1428">Install below libraries for virtual environment (Linux)</p>
+            <pre md-pos="1431-1475"><code md-pos="1438-1468">pip install virtualenvwrapper
+</code></pre>
+            <p md-pos="1478-1488">Windows -</p>
+            <pre md-pos="1491-1542"><code md-pos="1498-1532">pip install virtualenvwrapper-win
+</code></pre>
+            <p md-pos="1545-1607">Set up the working directory for virtual environments (Linux)</p>
+            <pre md-pos="1610-1721"><code md-pos="1617-1714">export WORKON_HOME=~/Envs
+mkdir -p $WORKON_HOME
+source /usr/local/bin/virtualenvwrapper.sh
+</code></pre>
+            <p md-pos="1724-1732">Windows</p>
+            <pre md-pos="1735-1866"><code md-pos="1742-1856">set WORKON_HOME=C:\Users\&lt;username&gt;\.Envs
+mkdir -p %WORKON_HOME%
+source /usr/local/bin/virtualenvwrapper.sh
+</code></pre>
+        </li>
+        <li class="p" md-pos="1866-3335">
+            <p class="p" md-pos="1869-1907">Setup below <strong md-pos="1883-1904">ENVIRONMENT VARIABLES</strong></p>
+            <p md-pos="1916-1939"><strong md-pos="1918-1936">Unix / Linux / Mac</strong></p>
+            <p md-pos="1948-2042"><code md-pos="1949-2040">Please note: Your computer path may vary, use your computer
+                path in below given in example</code></p>
+            <ul>
+                <li md-pos="2046-2159"><strong md-pos="2050-2060">PYTHONPATH</strong> - Full path to python executable
+                    <pre md-pos="2104-2160"><code md-pos="2116-2148">export PYTHONPATH=/usr/python37
+</code></pre>
+                </li>
+                <li md-pos="2164-2275"><strong md-pos="2168-2172">PATH</strong> - Update PATH variable add PYTHONPATH
+                    <pre md-pos="2221-2276"><code md-pos="2233-2264">export PATH=$PATH%:$PYTHONPATH
+</code></pre>
+                </li>
+                <li md-pos="2280-2433"><strong md-pos="2284-2301">VIRTUALENV_PYTHON</strong> - To create virtual
+                    environments. Path is same as PYTHONPATH
+                    <pre md-pos="2373-2434"><code md-pos="2385-2422">export VIRTUALENV_PYTHON=$PYTHONPATH
+</code></pre>
+                </li>
+                <li md-pos="2438-2635"><strong md-pos="2442-2470">VIRTUALENVWRAPPER_VIRTUALENV</strong> - Wrapper for
+                    Virtual Environment tools. Path is Scripts folder under PYTHONPATH
+                    <pre md-pos="2563-2636"><code md-pos="2575-2624">VIRTUALENVWRAPPER_VIRTUALENV=$PYTHONPATH/Scripts
+</code></pre>
+                </li>
+            </ul>
+            <p md-pos="2640-2652"><strong md-pos="2642-2649">Windows</strong></p>
+            <p md-pos="2661-2755"><code md-pos="2662-2753">Please note: Your computer path may vary, use your computer
+                path in below given in example</code></p>
+            <ul>
+                <li md-pos="2759-2870"><strong md-pos="2763-2773">PYTHONPATH</strong> - Full path to python.exe
+                    <pre md-pos="2810-2871"><code md-pos="2822-2859">PYTHONPATH=C:\Program Files\Python37
+</code></pre>
+                </li>
+                <li md-pos="2875-2980"><strong md-pos="2879-2883">PATH</strong> - Update PATH variable add PYTHONPATH
+                    <pre md-pos="2932-2981"><code md-pos="2944-2969">PATH=%PATH%;%PYTHONPATH%
+</code></pre>
+                </li>
+                <li md-pos="2985-3132"><strong md-pos="2989-3006">VIRTUALENV_PYTHON</strong> - To create virtual
+                    environments. Path is same as PYTHONPATH
+                    <pre md-pos="3078-3133"><code md-pos="3090-3121">VIRTUALENV_PYTHON=%PYTHONPATH%
+</code></pre>
+                </li>
+                <li md-pos="3137-3335"><strong md-pos="3141-3169">VIRTUALENVWRAPPER_VIRTUALENV</strong> - Wrapper for
+                    Virtual Environment tools. Path is Scripts folder under PYTHONPATH
+                    <pre md-pos="3262-3336"><code md-pos="3274-3324">VIRTUALENVWRAPPER_VIRTUALENV=%PYTHONPATH%\Scripts
+</code></pre>
+                </li>
+            </ul>
+        </li>
+        <li class="p" md-pos="3336-3817">
+            <p class="p" md-pos="3339-3472">Copy the Vitthal-datalake folder to your home folder <code
+                    md-pos="3394-3410">/home/&lt;username&gt;</code> and create a new virtual environment using commands
+                below -</p>
+            <pre md-pos="3475-3594"><code md-pos="3482-3587">mkvirtualenv -a &lt;path-to-marriot-datalake&gt; -p &lt;full-path-to-python.exe&gt; py37
+workon py37
+cdproject
+</code></pre>
+            <p md-pos="3597-3657"><code md-pos="3598-3607">cdproject</code> command will switch to Vitthal-datalake
+                folder</p>
+            <p md-pos="3664-3769">Import required libraries from requirements.txt from Vitthal-datalake root folder,
+                use command below –</p>
+            <pre md-pos="3772-3821"><code md-pos="3779-3811">pip install -r requirements.txt
+</code></pre>
+        </li>
+    </ol>
+    <h2 id="delpoy-to-higher-environment" md-pos="3825-3853"><a href="#delpoy-to-higher-environment"
+                                                                name="delpoy-to-higher-environment">Delpoy to higher
+        environment</a></h2>
+</div>
+</body>
+</html>

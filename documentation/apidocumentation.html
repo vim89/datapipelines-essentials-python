@@ -1,0 +1,380 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="file:/C:/Users/vimirji/.markdownNavigator/multimarkdown_layout.css" rel="stylesheet">
+    <style>
+
+body.multimarkdown-preview,
+body.multimarkdown-wiki-preview {
+    font-size: 11px;
+}
+
+
+
+
+    </style>
+    <link href="file:/C:/Users/vimirji/.markdownNavigator/multimarkdown_default.css" rel="stylesheet">
+</head>
+<body class="multimarkdown-preview">
+<div class="content">
+    <div class="page-header">APIDOC.MD</div>
+    <div class="hr"></div>
+    <h1 id="Vitthal-data-transformation" md-pos="2-30"><a href="#Vitthal-data-transformation"
+                                                          name="Vitthal-data-transformation">Vitthal Data
+        Transformation</a></h1>
+    <p md-pos="31-85">Data transformation simplified for any Data platform.</p>
+    <p md-pos="86-138"><code md-pos="87-96">Features:</code> The package has complete ETL process -</p>
+    <ol>
+        <li md-pos="138-219">Uses metadata, transformation &amp; data model information to design ETL pipeline</li>
+        <li md-pos="219-281">Builds target transformation SparkSQL and Spark Dataframes</li>
+        <li md-pos="281-317">Builds source &amp; target Hive DDLs</li>
+        <li md-pos="317-431">Validates DataFrames, extends core classes, defines DataFrame transformations, and provides
+            UDF SQL functions.
+        </li>
+        <li md-pos="431-641">Supports below fundamental transformations for ETL pipeline -
+            <ul>
+                <li md-pos="499-539">Filters on source &amp; target dataframes</li>
+                <li md-pos="542-600">Grouping and Aggregations on source &amp; target dataframes</li>
+                <li md-pos="603-641">Heavily nested queries / dataframes</li>
+            </ul>
+        </li>
+        <li md-pos="641-734">Has complex and heavily nested XML, JSON, Parquet &amp; ORC parser to nth
+            level of nesting
+        </li>
+        <li md-pos="734-825">Has Unit test cases designed on function/method level &amp; measures
+            source code coverage
+        </li>
+        <li md-pos="825-883">Has information about delpoying to higher environments</li>
+        <li md-pos="883-940">Has API documentation for customization &amp; enhancement</li>
+    </ol>
+    <p md-pos="941-971"><code md-pos="942-955">Enhancements:</code> In progress -</p>
+    <ol>
+        <li md-pos="971-1086">Integrate Audit and logging - Define Error codes, log process
+            failures, Audit progress &amp; runtime information
+        </li>
+    </ol>
+    <h1 id="Vitthal-datalake-api-documentation" md-pos="1089-1124"><a href="#Vitthal-datalake-api-documentation"
+                                                                      name="Vitthal-datalake-api-documentation">Vitthal
+        datalake API documentation</a></h1>
+    <h2 id="mappers-for-complexnested-data-sources" md-pos="1128-1167"><a href="#mappers-for-complexnested-data-sources"
+                                                                          name="mappers-for-complexnested-data-sources">Mappers
+        for complex/nested data sources</a></h2>
+    <ul>
+        <li class="p" md-pos="1168-1337">
+            <p class="p" md-pos="1170-1337">Has interface <code md-pos="1185-1192">IMapper</code> and implemented
+                concrete class <code md-pos="1226-1235">XmlMapper</code>. We
+                can use same abstract / interface for other category of file mapping
+                viz. XML/JSON/Parquet/ORC.</p>
+        </li>
+        <li class="p" md-pos="1337-1485">
+            <p class="p" md-pos="1339-1485">Core methods/function common for overriding
+                are – <code md-pos="1390-1408">getDataframeSchema</code>, <code md-pos="1412-1421">createDDL</code>,
+                <code md-pos="1425-1444">complexTypeIterator</code>,
+                <code md-pos="1448-1464">handleStructType</code>, <code md-pos="1468-1483">handleArrayType</code></p>
+        </li>
+        <li class="p" md-pos="1486-1535">
+            <p class="p" md-pos="1488-1535">Overview of complex type parsing &amp; exploding -</p>
+        </li>
+        <li class="p" md-pos="1535-1581">
+            <p class="p" md-pos="1537-1581"><img alt="Complex type parser" md-pos="1537-1580"
+                                                 src="file:/C:/Users/vimirji/Documents/Vitthal/Development/Vitthal-datalake/documentation/images/XMLParse.png"/>
+            </p>
+        </li>
+    </ul>
+    <pre md-pos="1581-2687"><code md-pos="1585-2683">def handleStructType(self, viewname, viewpath, database, table, xpath, level, dtype, acc={}, xpaths=[]):
+    query = &quot;&quot;
+    if not str(viewname).__eq__(&quot;&quot;):
+        keynm = f&quot;{table.replace('.', '_')}_{viewname.replace('.', '_')}&quot;
+        # xpath = f&quot;{xpath.replace('.', '/')}/{viewname.replace('.', '/')}&quot;
+        viewpath = f&quot;{table}.{viewname}&quot;
+        query = f&quot;SELECT v{level}.* FROM {table} t{level} &quot; \
+                f&quot;LATERAL VIEW INLINE(ARRAY(t{level}.`{viewname}`)) v{level}&quot;
+        acc.update({keynm: query})
+        table = keynm
+        # xpaths.append(xpath)
+
+    structtype: StructType = dtype
+    for field in structtype.fields:
+        viewname = field.name
+        viewpath = f&quot;{table}.{viewname}&quot;
+        newxpath = f&quot;{xpath.replace('.', '/')}/{viewname.replace('.', '/')}&quot;
+        # xpaths.append(newxpath)
+        self.complexTypeIterator(viewname=viewname, viewpath=viewpath, database=database, table=table,
+                                 xpath=newxpath, level=level,
+                                 dtype=field.dataType, acc=acc, xpaths=xpaths)
+
+    return acc, xpaths
+</code></pre>
+    <pre md-pos="2687-4690"><code md-pos="2691-4686">def handleArrayType(self, viewname, viewpath, database, table, xpath, level, dtype: ArrayType, acc={}, xpaths=[]):
+    query = &quot;&quot;
+    if dtype.elementType.typeName().lower().__eq__(&quot;struct&quot;):
+        keynm = f&quot;{table.replace('.', '_')}_{viewname.replace('.', '_')}&quot;
+        newxpath = f&quot;{xpath.replace('.', '/')}/{viewname.replace('.', '/')}&quot;
+        query = f&quot;SELECT v{level}.* FROM {table} t{level} &quot; \
+                f&quot;LATERAL VIEW INLINE(t{level}.`{viewname}`) v{level}&quot;
+        acc.update({keynm: query})
+        self.handleStructType(viewname=viewname, viewpath=viewpath, database=database, table=table, xpath=xpath,
+                              level=level + 1,
+                              dtype=dtype.elementType, acc=acc, xpaths=xpaths)
+    elif dtype.elementType.typeName().lower().__eq__(&quot;array&quot;):
+        print(&quot;Array of Arrays detected -&gt;&quot; + dtype.elementType.simpleString())
+        newxpath = f&quot;{xpath.replace('.', '/')}/{viewname.replace('.', '/')}&quot;
+        self.handleArrayType(viewname=viewname, viewpath=viewpath, database=database, table=table, xpath=xpath,
+                             level=level + 1,
+                             dtype=dtype.elementType, acc=acc, xpaths=xpaths)
+    else:
+        if not str(viewname).__eq__(&quot;&quot;):
+            keynm = f&quot;{table.replace('.', '_')}_{viewname.replace('.', '_')}&quot;
+            # newxpath = f&quot;{xpath.replace('.', '/')}/{viewname.replace('.', '/')}&quot;
+        else:
+            keynm = table.replace('.', '_')
+            # newxpath = f&quot;{xpath.replace('.', '/')}/{viewname.replace('.', '/')}&quot;
+        query = f&quot;SELECT v{level}.* FROM {table} t{level} &quot; \
+                f&quot;LATERAL VIEW EXPLODE(t{level}.`{viewname}`) v{level}&quot;
+        acc.update({keynm: query})
+        self.complexTypeIterator(viewname=viewname, viewpath=viewpath, database=database, table=table, xpath=xpath,
+                                 level=level,
+                                 dtype=dtype.elementType, acc=acc, xpaths=xpaths)
+    return acc, xpaths
+</code></pre>
+    <pre md-pos="4690-5564"><code md-pos="4694-5560">def complexTypeIterator(self, viewname, viewpath, database, table, xpath, level, dtype: DataType, acc={},
+                        xpaths=[]):
+    selectquery = &quot;SELECT &quot;
+    if dtype.typeName().lower().__eq__(&quot;struct&quot;):
+        self.handleStructType(viewname=viewname, viewpath=viewpath, database=database, table=table, xpath=xpath,
+                              level=level,
+                              dtype=dtype, acc=acc, xpaths=xpaths)
+    elif dtype.typeName().lower().__eq__(&quot;array&quot;):
+        self.handleArrayType(viewname=viewname, viewpath=viewpath, database=database, table=table, xpath=xpath,
+                             level=level,
+                             dtype=dtype, acc=acc, xpaths=xpaths)
+    else:
+        xpaths.append(xpath)
+        self.xpaths = xpaths
+        self.nestedxmlviews = acc
+        return acc, xpaths
+    return acc, xpaths
+</code></pre>
+    <h3 id="xmlmapper" md-pos="5569-5578"><a href="#xmlmapper" name="xmlmapper">XmlMapper</a></h3>
+    <ul>
+        <li md-pos="5579-5669"><code md-pos="5582-5591">XmlMapper</code> specific methods / functions – <code
+                md-pos="5625-5645">createViewsAndXpaths</code>,
+            <code md-pos="5651-5667">buildXmlSerdeDDL</code></li>
+    </ul>
+    <pre md-pos="5670-5991"><code md-pos="5674-5987">def createViewsAndXpaths(self, df: DataFrame, database, table):
+    views = {}
+    views = self.complexTypeIterator(viewname=&quot;&quot;, viewpath=&quot;&quot;, database=database, table=table, xpath=table, level=0,
+                                     dtype=df.schema, acc={}, xpaths=[])
+    return self.nestedxmlviews, self.xpaths
+</code></pre>
+    <pre md-pos="5991-8536"><code md-pos="5995-8532">def buildXmlSerdeDdl(self, database, table, xmlsourcelocation, xmlrowstarttag, xmlrowendtag):
+    querieslist = []
+    # querieslist.append(f&quot;CREATE DATABASE IF NOT EXISTS {database}&quot;)
+    querieslist.append(f&quot;DROP TABLE IF EXISTS {database}.{table}&quot;)
+    ddlhead = f&quot;CREATE TABLE IF NOT EXISTS {database}.xmltable&quot;
+    ddlcols = list()
+    serdeproperties = list()
+    x = 1
+    for i in self.xpaths:
+        ddlclmnm = self.shortenNames(str(i).replace('xmltable/', f'{xmlrowendtag}/').replace('/xmlvaluetag', '').replace('@', '').replace('/', '_'))
+        ddlcols.append(
+            f&quot;col_{x}_{ddlclmnm[-118:]} ARRAY&lt;STRING&gt;&quot;)
+        if str(i).__contains__('xmlvaluetag') or str(i).__contains__('@'):
+            serdeprpty = self.shortenNames(str(i).replace('xmltable/', f'{xmlrowendtag}/').replace('/xmlvaluetag', '').replace('@', '').replace('/', '_'))
+            serdeprptyval = str(i).replace('xmltable/', f'{xmlrowendtag}/').replace('/xmlvaluetag', '/text()')
+            print(serdeprptyval)
+            serdeproperties.append(
+                f&quot;\&quot;column.xpath.col_{x}_{serdeprpty[-118:]}\&quot;=\&quot;/{serdeprptyval}\&quot;&quot;)
+        else:
+            serdeprpty = self.shortenNames(str(i).replace('xmltable/', f'{xmlrowendtag}/').replace('/xmlvaluetag', '').replace('@', '').replace('/', '_'))
+            serdeprptyval = str(i).replace('xmltable/', f'{xmlrowendtag}/')
+            serdeproperties.append(
+                f&quot;\&quot;column.xpath.col_{x}_{serdeprpty[-118:]}\&quot;=\&quot;/{serdeprptyval}/text()\&quot;&quot;)
+        x = x + 1
+    ddltail = f&quot;ROW FORMAT SERDE 'com.ibm.spss.hive.serde2.xml.XmlSerDe' WITH SERDEPROPERTIES ( {','.join(list(serdeproperties))} ) STORED AS INPUTFORMAT 'com.ibm.spss.hive.serde2.xml.XmlInputFormat' OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat' LOCATION '/data/DEV/stage/epic/xmltable' TBLPROPERTIES ( \&quot;xmlinput.start\&quot;=\&quot;&lt;{xmlrowstarttag}\&quot;, \&quot;xmlinput.end\&quot;=\&quot;&lt;/{xmlrowendtag}&gt;\&quot;)&quot;
+    ddlbody = f&quot;({','.join(list(ddlcols))})&quot;
+    finalddl = f&quot;{ddlhead} {ddlbody} {ddltail}&quot;
+
+    print(finalddl)
+    querieslist.append(finalddl)
+
+    querieslist.append(f&quot;LOAD DATA INPATH '{xmlsourcelocation}' OVERWRITE INTO TABLE {database}.{table}&quot;)
+
+    columnnames = list(map(lambda
+                               x: f&quot;REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS(\&quot;;\&quot;,{str(x).split(' ')[0]}), \&quot;&lt;string&gt;\&quot;, \&quot;\&quot;), \&quot;&lt;/string&gt;\&quot;,\&quot;\&quot;) AS {str(x).split(' ')[0]}&quot;,
+                           ddlcols))
+
+    querieslist.append(f&quot;SELECT {','.join(columnnames)} FROM {database}.{table}&quot;)
+    return querieslist
+</code></pre>
+    <h2 id="pyspark-core-class-extensions" md-pos="8542-8571"><a href="#pyspark-core-class-extensions"
+                                                                 name="pyspark-core-class-extensions">Pyspark Core Class
+        Extensions</a></h2>
+    <pre md-pos="8573-8604"><code md-pos="8577-8600">from etl.meta import *
+</code></pre>
+    <h3 id="column-extensions" md-pos="8609-8626"><a href="#column-extensions" name="column-extensions">Column
+        Extensions</a></h3>
+    <p md-pos="8628-8642"><strong md-pos="8630-8639">isFalsy()</strong></p>
+    <pre md-pos="8643-8726"><code class="python" md-pos="8653-8722">source_df.withColumn(&quot;is_stuff_falsy&quot;, F.col(&quot;has_stuff&quot;).isFalsy())
+</code></pre>
+    <p md-pos="8727-8779">Returns <code md-pos="8736-8740">True</code> if <code md-pos="8746-8755">has_stuff</code> is
+        <code md-pos="8761-8765">None</code> or <code md-pos="8771-8776">False</code>.</p>
+    <p md-pos="8780-8795"><strong md-pos="8782-8792">isTruthy()</strong></p>
+    <pre md-pos="8796-8881"><code class="python" md-pos="8806-8877">source_df.withColumn(&quot;is_stuff_truthy&quot;, F.col(&quot;has_stuff&quot;).isTruthy())
+</code></pre>
+    <p md-pos="8882-8938">Returns <code md-pos="8891-8895">True</code> unless <code md-pos="8905-8914">has_stuff</code>
+        is <code md-pos="8920-8924">None</code> or <code md-pos="8930-8935">False</code>.</p>
+    <p md-pos="8939-8959"><strong md-pos="8941-8956">isNullOrBlank()</strong></p>
+    <pre md-pos="8960-9051"><code class="python" md-pos="8970-9047">source_df.withColumn(&quot;is_blah_null_or_blank&quot;, F.col(&quot;blah&quot;).isNullOrBlank())
+</code></pre>
+    <p md-pos="9052-9158">Returns <code md-pos="9061-9065">True</code> if <code md-pos="9071-9075">blah</code> is <code
+            md-pos="9081-9085">null</code> or blank (the empty string or a string that only contains whitespace).</p>
+    <p md-pos="9159-9173"><strong md-pos="9161-9170">isNotIn()</strong></p>
+    <pre md-pos="9174-9272"><code class="python" md-pos="9184-9268">source_df.withColumn(&quot;is_not_bobs_hobby&quot;, F.col(&quot;fun_thing&quot;).isNotIn(bobs_hobbies))
+</code></pre>
+    <p md-pos="9273-9347">Returns <code md-pos="9282-9286">True</code> if <code md-pos="9292-9301">fun_thing</code> is
+        not included in the <code md-pos="9327-9339">bobs_hobbies</code> list.</p>
+    <p md-pos="9348-9366"><strong md-pos="9350-9363">nullBetween()</strong></p>
+    <pre md-pos="9367-9482"><code class="python" md-pos="9377-9478">source_df.withColumn(&quot;is_between&quot;, F.col(&quot;age&quot;).nullBetween(F.col(&quot;lower_age&quot;), F.col(&quot;upper_age&quot;)))
+</code></pre>
+    <p md-pos="9483-9800">Returns <code md-pos="9492-9496">True</code> if <code md-pos="9502-9505">age</code> is between
+        <code md-pos="9519-9528">lower_age</code> and <code md-pos="9535-9544">upper_age</code>. If <code
+                md-pos="9552-9561">lower_age</code> is populated and <code md-pos="9581-9590">upper_age</code> is <code
+                md-pos="9596-9600">null</code>, it will return <code md-pos="9619-9623">True</code> if <code
+                md-pos="9629-9632">age</code> is greater than or equal to <code md-pos="9663-9672">lower_age</code>. If
+        <code md-pos="9680-9689">lower_age</code> is <code md-pos="9695-9699">null</code> and <code md-pos="9706-9715">upper_age</code>
+        is populate, it will return <code md-pos="9746-9750">True</code> if <code md-pos="9756-9759">age</code> is lower
+        than or equal to <code md-pos="9788-9797">upper_age</code>.</p>
+    <h3 id="sparksession-extensions" md-pos="9805-9828"><a href="#sparksession-extensions"
+                                                           name="sparksession-extensions">SparkSession Extensions</a>
+    </h3>
+    <p md-pos="9830-9846"><strong md-pos="9832-9843">create_df()</strong></p>
+    <pre md-pos="9847-9993"><code class="python" md-pos="9857-9989">spark.create_df(
+    [(&quot;jose&quot;, &quot;a&quot;), (&quot;li&quot;, &quot;b&quot;), (&quot;sam&quot;, &quot;c&quot;)],
+    [(&quot;name&quot;, StringType(), True), (&quot;blah&quot;, StringType(), True)]
+)
+</code></pre>
+    <p md-pos="9994-10090">Creates DataFrame with a syntax that's less verbose than the built-in <code
+            md-pos="10065-10080">createDataFrame</code> method.</p>
+    <h3 id="dataframe-extensions" md-pos="10095-10115"><a href="#dataframe-extensions" name="dataframe-extensions">DataFrame
+        Extensions</a></h3>
+    <p md-pos="10117-10138"><strong md-pos="10119-10135">applyTransform()</strong></p>
+    <pre md-pos="10139-10275"><code class="python" md-pos="10149-10271">source_df\
+    .applyTransform(lambda df: with_greeting(df))\
+    .applyTransform(lambda df: with_something(df, &quot;crazy&quot;))
+</code></pre>
+    <p md-pos="10276-10346">Allows for multiple DataFrame transformations to be run and executed.</p>
+    <h2 id="helper-functions" md-pos="10350-10366"><a href="#helper-functions" name="helper-functions">Helper
+        Functions</a></h2>
+    <pre md-pos="10368-10398"><code class="python" md-pos="10378-10394">import etl.meta
+</code></pre>
+    <h3 id="dataframe-validations" md-pos="10403-10424"><a href="#dataframe-validations" name="dataframe-validations">DataFrame
+        Validations</a></h3>
+    <p md-pos="10426-10458"><strong md-pos="10428-10455">validatePresenceOfColumns()</strong></p>
+    <pre md-pos="10459-10543"><code class="python" md-pos="10469-10539">etl.meta.validatePresenceOfColumns(source_df, [&quot;name&quot;, &quot;age&quot;, &quot;fun&quot;])
+</code></pre>
+    <p md-pos="10544-10629">Raises an exception unless <code md-pos="10572-10581">source_df</code> contains the <code
+            md-pos="10597-10601">name</code>, <code md-pos="10605-10608">age</code>, and <code
+            md-pos="10616-10619">fun</code> column.</p>
+    <p md-pos="10630-10651"><strong md-pos="10632-10648">validateSchema()</strong></p>
+    <pre md-pos="10652-10718"><code class="python" md-pos="10662-10714">etl.meta.validateSchema(source_df, required_schema)
+</code></pre>
+    <p md-pos="10719-10824">Raises an exception unless <code md-pos="10747-10756">source_df</code> contains all the
+        <code md-pos="10776-10788">StructFields</code> defined in the <code md-pos="10806-10821">required_schema</code>.
+    </p>
+    <p md-pos="10825-10856"><strong md-pos="10827-10853">validateAbsenseOfColumns()</strong></p>
+    <pre md-pos="10857-10933"><code class="python" md-pos="10867-10929">etl.meta.validateAbsenseOfColumns(source_df, [&quot;age&quot;, &quot;cool&quot;])
+</code></pre>
+    <p md-pos="10934-11003">Raises an exception if <code md-pos="10958-10967">source_df</code> contains <code
+            md-pos="10979-10982">age</code> or <code md-pos="10988-10992">cool</code> columns.</p>
+    <h3 id="functions" md-pos="11008-11017"><a href="#functions" name="functions">Functions</a></h3>
+    <p md-pos="11019-11038"><strong md-pos="11021-11035">single_space()</strong></p>
+    <pre md-pos="11039-11156"><code class="python" md-pos="11049-11152">actual_df = source_df.withColumn(
+    &quot;words_single_spaced&quot;,
+    etl.meta.single_space(col(&quot;words&quot;))
+)
+</code></pre>
+    <p md-pos="11158-11258">Replaces all multispaces with single spaces (e.g. changes <code md-pos="11217-11234">&quot;this
+        has some&quot;</code> to <code md-pos="11240-11255">&quot;this has some&quot;</code>.</p>
+    <p md-pos="11259-11287"><strong md-pos="11261-11284">remove_all_whitespace()</strong></p>
+    <pre md-pos="11288-11419"><code class="python" md-pos="11298-11415">actual_df = source_df.withColumn(
+    &quot;words_without_whitespace&quot;,
+    etl.meta.remove_all_whitespace(col(&quot;words&quot;))
+)
+</code></pre>
+    <p md-pos="11420-11507">Removes all whitespace in a string (e.g. changes <code md-pos="11470-11485">&quot;this has
+        some&quot;</code> to <code md-pos="11491-11504">&quot;thishassome&quot;</code>.</p>
+    <p md-pos="11508-11524"><strong md-pos="11510-11521">anti_trim()</strong></p>
+    <pre md-pos="11525-11638"><code class="python" md-pos="11535-11634">actual_df = source_df.withColumn(
+    &quot;words_anti_trimmed&quot;,
+    etl.meta.anti_trim(col(&quot;words&quot;))
+)
+</code></pre>
+    <p md-pos="11639-11775">Removes all inner whitespace, but doesn't delete leading or trailing whitespace (e.g.
+        changes <code md-pos="11734-11751">&quot; this has some &quot;</code> to <code md-pos="11757-11772">&quot;
+            thishassome &quot;</code>.</p>
+    <p md-pos="11776-11809"><strong md-pos="11778-11806">remove_non_word_characters()</strong></p>
+    <pre md-pos="11810-11949"><code class="python" md-pos="11820-11945">actual_df = source_df.withColumn(
+    &quot;words_without_nonword_chars&quot;,
+    etl.meta.remove_non_word_characters(col(&quot;words&quot;))
+)
+</code></pre>
+    <p md-pos="11950-12050">Removes all non-word characters from a string (e.g. changes <code md-pos="12011-12031">&quot;si%$#@!#$!@#mpsons&quot;</code>
+        to <code md-pos="12037-12047">&quot;simpsons&quot;</code>.</p>
+    <p md-pos="12051-12064"><strong md-pos="12053-12061">exists()</strong></p>
+    <pre md-pos="12065-12183"><code class="python" md-pos="12075-12179">source_df.withColumn(
+    &quot;any_num_greater_than_5&quot;,
+    etl.meta.exists(lambda n: n &gt; 5)(col(&quot;nums&quot;))
+)
+</code></pre>
+    <p md-pos="12184-12345"><code md-pos="12185-12189">nums</code> contains lists of numbers and <code
+            md-pos="12222-12230">exists()</code> returns <code md-pos="12241-12245">True</code> if any of the numbers in
+        the list are greater than 5. It's similar to the Python <code md-pos="12330-12333">any</code> function.</p>
+    <p md-pos="12346-12359"><strong md-pos="12348-12356">forall()</strong></p>
+    <pre md-pos="12360-12479"><code class="python" md-pos="12370-12475">source_df.withColumn(
+    &quot;all_nums_greater_than_3&quot;,
+    etl.meta.forall(lambda n: n &gt; 3)(col(&quot;nums&quot;))
+)
+</code></pre>
+    <p md-pos="12480-12641"><code md-pos="12481-12485">nums</code> contains lists of numbers and <code
+            md-pos="12518-12526">forall()</code> returns <code md-pos="12537-12541">True</code> if all of the numbers in
+        the list are greater than 3. It's similar to the Python <code md-pos="12626-12629">all</code> function.</p>
+    <p md-pos="12642-12661"><strong md-pos="12644-12658">multi_equals()</strong></p>
+    <pre md-pos="12662-12780"><code class="python" md-pos="12672-12776">source_df.withColumn(
+    &quot;are_s1_and_s2_cat&quot;,
+    etl.meta.multi_equals(&quot;cat&quot;)(col(&quot;s1&quot;), col(&quot;s2&quot;))
+)
+</code></pre>
+    <p md-pos="12781-12853"><code md-pos="12782-12794">multi_equals</code> returns true if <code
+            md-pos="12813-12815">s1</code> and <code md-pos="12822-12824">s2</code> are both equal to <code
+            md-pos="12845-12850">&quot;cat&quot;</code>.</p>
+    <h3 id="transformations" md-pos="12858-12873"><a href="#transformations" name="transformations">Transformations</a>
+    </h3>
+    <p md-pos="12875-12902"><strong md-pos="12877-12899">snakeCaseColumnNames()</strong></p>
+    <pre md-pos="12903-12958"><code class="python" md-pos="12913-12954">etl.meta.snakeCaseColumnNames(source_df)
+</code></pre>
+    <p md-pos="12959-13088">Converts all the column names in a DataFrame to snake_case. It's annoying to write SQL
+        queries when columns aren't snake cased.</p>
+    <p md-pos="13089-13108"><strong md-pos="13091-13105">sort_columns()</strong></p>
+    <pre md-pos="13109-13163"><code class="python" md-pos="13119-13159">etl.meta.sort_columns(source_df, &quot;asc&quot;)
+</code></pre>
+    <p md-pos="13164-13291">Sorts the DataFrame columns in alphabetical order. Wide DataFrames are easier to navigate
+        when they're sorted alphabetically.</p>
+    <h3 id="dataframe-helpers" md-pos="13296-13313"><a href="#dataframe-helpers" name="dataframe-helpers">DataFrame
+        Helpers</a></h3>
+    <p md-pos="13315-13334"><strong md-pos="13317-13331">columnToList()</strong></p>
+    <pre md-pos="13335-13390"><code class="python" md-pos="13345-13386">etl.meta.columnToList(source_df, &quot;name&quot;)
+</code></pre>
+    <p md-pos="13391-13445">Converts a column in a DataFrame to a list of values.</p>
+    <p md-pos="13446-13474"><strong md-pos="13448-13471">twoColumns2Dictionary()</strong></p>
+    <pre md-pos="13475-13546"><code class="python" md-pos="13485-13542">etl.meta.twoColumns2Dictionary(source_df, &quot;name&quot;, &quot;age&quot;)
+</code></pre>
+    <p md-pos="13547-13662">Converts two columns of a DataFrame into a dictionary. In this example, <code
+            md-pos="13621-13625">name</code> is the key and <code md-pos="13643-13646">age</code> is the value.</p>
+    <p md-pos="13663-13690"><strong md-pos="13665-13687">toListOfDictionaries()</strong></p>
+    <pre md-pos="13691-13746"><code class="python" md-pos="13701-13742">etl.meta.toListOfDictionaries(source_df)
+</code></pre>
+    <p md-pos="13747-13805">Converts an entire DataFrame into a list of dictionaries.</p>
+</div>
+</body>
+</html>
