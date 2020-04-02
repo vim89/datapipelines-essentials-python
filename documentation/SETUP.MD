@@ -21,8 +21,8 @@ Data transformation simplified for any Data platform.
 `Enhancements:` In progress -
 1. Integrate Audit and logging - Define Error codes, log process failures, Audit progress & runtime information
 
-## Setup
-Make sure you have Python >= 3.0.
+## Setup for Python and Pyspark on Windows & Linux machines locally
+Make sure you have Python >= 3.0 and Do not use Python 3.8; Recommended is Python 3.7 and PySpark 2.3.4
 If you do not have pip tool, get it from https://pypi.org/project/pip/ and execute below command
 **If you already have Python & pip installed skip the below step** 
 ```
@@ -46,10 +46,10 @@ Once you have Python and pip follow steps below -
    ```
    Windows
    ```
-   set WORKON_HOME=C:\Users\<username>\.Envs
-   mkdir -p %WORKON_HOME%
-   source /usr/local/bin/virtualenvwrapper.sh
+   Create directory C:\Users\<username>\Envs
+   WORKON_HOME=C:\Users\<username>\Envs
    ```   
+
 2. Setup below **ENVIRONMENT VARIABLES**
     
     **Unix / Linux / Mac**
@@ -89,17 +89,32 @@ Once you have Python and pip follow steps below -
     - **VIRTUALENVWRAPPER_VIRTUALENV** - Wrapper for Virtual Environment tools. Path is Scripts folder under PYTHONPATH 
         ```
         VIRTUALENVWRAPPER_VIRTUALENV=%PYTHONPATH%\Scripts
+
         ```
-3. Copy the Vitthal-datalake folder to your home folder `/home/<username>` and create a new virtual environment using commands below -
+4. Install Hadoop Binaries for Windows: winutils.exe; Note this is only for Windows. Linux users Download Spark libraries for Linux -
+   - Download binaries from URL https://github.com/steveloughran/winutils
+   - Unzip and place in some directory: For Example I'm using C:\winutils-master
+   - Within extracted folder we have hadoop-2.7.1 --> Example: C:\winutils-master\hadoop-2.7.1
+   - Declare an Environment variable HADOOP_HOME = C:\winutils-master\hadoop-2.7.1 and update PATH Variable
+    ```
+    HADOOP_HOME=C:\winutils-master\hadoop-2.7.1
+    PATH=%PATH%;%HADOOP_HOME%\bin
+    ```
+5. Check if all the Environment Variables are working -
+   - Open Command prompt
+   - Type `python` it must open Python 3.7.x
+   - Type `winutils`, `hadoop`, `hdfs` it must give help instructions of HDFS
+
+3. Create a spark project - 
+   - Create a directory for example `datalake-etl-pipeline` anywhere in your computer; Here I'm using `/home/<username>` and create a new virtual environment using commands below -
    ```
-   mkvirtualenv -a <path-to-marriot-datalake> -p <full-path-to-python.exe> py37
+   mkvirtualenv -a <full-path-to-im-learning-spark> -p <full-path-to-python.exe> py37
    workon py37
    cdproject
    ```
-   `cdproject` command will switch to Vitthal-datalake folder
+   `cdproject` command will switch to `datalake-etl-pipeline` folder
    
-   Import required libraries from requirements.txt from
-   datalake-etl-pipeline root folder, use command below –
+   Import required libraries from requirements.txt from `datalake-etl-pipeline` root folder, use command below – 
    ```
    pip install -r requirements.txt
    ```
