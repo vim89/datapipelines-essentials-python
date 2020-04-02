@@ -2,8 +2,8 @@ import time
 import unittest
 
 from main.src.imports.HdfsImport import HdfsImport
-from main.src.mapper.Mapper import XmlMapper
 from main.src.utils.Utilities import SparkSettings
+from mapper.Mapper import XmlMapper
 
 start_time = time.time()
 
@@ -14,77 +14,35 @@ class XmlMapperTest(unittest.TestCase):
         self.sparksettings = SparkSettings("XmlMapperTest")
         self.spark = self.sparksettings.getSparkSession()
         self.hdfsImport = HdfsImport(self.spark)
-        self.hdfsImport.table = "test"
-        self.hdfsImport.system = "syst"
-        self.dataframe: DataFrame = self.hdfsImport.readFromSource(location='resources/EPIC_HWS_110919.xml',
-                                                                   filetype='xml')
 
-        self.txtdf: DataFrame = self.hdfsImport.readFromSource(location='resources/EPIC_HWS_110919.xml',
-                                                               filetype='text')
+        # Read JSON file from given path
+        json_df = self.spark.read.json(path='resources/epic/lilly')
 
-        self.xmlmapper = XmlMapper(sc=self.spark)
-        self.dataframe.printSchema()
-        print(self.dataframe.count())
+        # Register as temporary view / table for flattening queries to execute on
+        json_df.createOrReplaceTempView('xmltable')
 
-        self.dataframe.createOrReplaceTempView("xmltable")
-        self.txtdf.createOrReplaceTempView('xmltabletext')
-        self.assertGreater(self.dataframe.count(), 0)
-        ddlstr = self.xmlmapper.createDDL(df=self.dataframe, database="", table="xmltable",
-                                          location='/data/DEV/source/xmlfile')
-        print(ddlstr)
+        # Create an object of class XmlMapper from Mapper.py by passing spark variable
+        xml_mapper: XmlMapper = XmlMapper(sc=self.spark)
 
-        views, xpaths = self.xmlmapper.createViewsAndXpaths(df=self.dataframe, database="epic", table="xmltable")
+        # Call createViews function by passing json_df dataframe, it returns 2 things flattening queries and XPATH (Only for XML; Ignore for JSON)
+        view_queries = xml_mapper.createViews(df=json_df)
 
-        querieslist = self.xmlmapper.buildXmlSerdeDdl(database="epic", table="xmltable",
-                                                      xmlsourcelocation='/data/DEV/EPIC_HWS_110919.xml',
-                                                      xmlrowstarttag='HotelDescriptiveContent AreaUnitOfMeasureCode',
-                                                      xmlrowendtag='HotelDescriptiveContent')
-
-        print(querieslist)
-
-        datalookupdf = self.hdfsImport.readFromSource(location='resources/OTALookup.csv', filetype='csv')
-        datalookupdict = {}
-
-        datalookupdf.show()
-        for r in datalookupdf.collect():
-            rowdict = r.asDict()
-            if str(rowdict['NeedCode']).lower().__eq__('yes'):
-                datalookupdict.update({f"{str(rowdict['Columns'])}": rowdict['OTALookup']})
-            else:
-                datalookupdict.update({f"{str(rowdict['Columns'])}": ''})
-
-        lookupdf = self.hdfsImport.readFromSource(location='resources/OTALookupValues.csv', filetype='csv')
-        lookupdf.show()
-        lookupdict = {}
-        for r in lookupdf.collect():
-            rowdict = r.asDict()
-            d = {
-                f"{str(rowdict['OTALookup'])} {str(rowdict['OTALookupCode'])}": rowdict['OTALookupValue']
-            }
-            lookupdict.update(d)
-
-        for q in querieslist:
-            print(q)
-            self.spark.sql(q).show()
-
-        finaldf = self.spark.sql(querieslist[-1])
-
-        finaldf.write.mode('overwrite').csv('Epic1G', header=True)
-
-        ETL.lookup = lookupdict
-
-        finalselcols = []
-        for d in datalookupdict:
-            if str(d) in finaldf.schema.names:
-                if datalookupdict[d] is not None and not datalookupdict[d].__eq__(''):
-                    finalselcols.append(f"udflookup('{datalookupdict[d]}', {str(d)}) AS {str(d)}")
-                else:
-                    finalselcols.append(f"{str(d)} AS {str(d)}")
-
-        print(finalselcols)
-
-        ETL.registerAllUDF(self.spark)
-        finaldf.selectExpr(*finalselcols).coalesce(1).write.mode('overwrite').csv('finaxml1', header=True)
+        # Loop through all queries, execute them, physicalize flattened attributes as table - Repeat steps to all queries (Nested attributes)
+        for q in view_queries[0]:
+            print(f'Executing query:'
+                  f'{view_queries[0][q]}')
+            try:
+                temp_df = self.spark.sql(view_queries[0][q])
+                temp_df.createOrReplaceTempView(q)
+                select_cols = []
+                for col in temp_df.schema.fields:
+                    if not str(col.dataType).lower().startswith("struct") and not str(col.dataType).lower().startswith(
+                            "array"):
+                        select_cols.append(col.name)
+                temp_df.select(select_cols).show()
+                # temp_df.select(select_cols).coalesce(1).write.csv(f"{q}")
+            except Exception:
+                print(f'Query {q} failed to execute')
 
 
 if __name__ == '__main__':
