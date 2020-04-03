@@ -22,6 +22,16 @@ Data transformation simplified for any Data platform.
 1. Integrate Audit and logging - Define Error codes, log process failures, Audit progress & runtime information
 
 ## Setup for Python and Pyspark on Windows & Linux machines locally
+
+First please install 64 bit JDK 1.8 or 8 for your operating system from Oracle https://www.oracle.com/java/technologies/javase-jdk8-downloads.html
+set below below environment variable pointing to home directory of java (Please remember the path mentioned below may be different for you)
+```
+JAVA_HOME=C:\Program Files\Java\jdk1.8.0_231
+```
+
+Next, Install PyCharm community edition from https://www.jetbrains.com/pycharm/download/
+
+
 Make sure you have Python >= 3.0 and Do not use Python 3.8; Recommended is Python 3.7 and PySpark 2.3.4
 If you do not have pip tool, get it from https://pypi.org/project/pip/ and execute below command
 **If you already have Python & pip installed skip the below step** 
