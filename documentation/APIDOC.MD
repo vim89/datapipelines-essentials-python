@@ -129,7 +129,8 @@ Allows for multiple DataFrame transformations to be run and executed.
 ## Helper Functions
 
 ```python
-import etl.meta
+
+import etl
 ```
 
 ### DataFrame Validations

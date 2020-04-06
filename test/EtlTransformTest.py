@@ -1,9 +1,8 @@
 import time
 import unittest
 
-from etl.ETLTransform import Transform
+from etl import Transform
 from etl.meta import MetaModel
-from etl.meta.MetaModel import *
 from utils.Utilities import SparkSettings
 
 start_time = time.time()

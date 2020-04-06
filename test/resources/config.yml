@@ -1,0 +1,9 @@
+# required to connect to redshift
+host: my.redshift.cluster.com
+port: 5439
+database: db
+user: userid
+password: password
+## optional extras for the dbapi connector
+sslmode: require
+another_option: 123

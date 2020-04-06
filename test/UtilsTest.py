@@ -4,7 +4,7 @@ import unittest
 from join_sample import transformSplitExplodeField
 from pyspark.sql import DataFrame
 
-from main.src.utils.Utilities import SparkSettings
+from utils.Utilities import SparkSettings
 
 
 class UtilsTest(unittest.TestCase):

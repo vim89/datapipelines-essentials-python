@@ -1,9 +1,9 @@
 import time
 import unittest
 
-from main.src.imports.HdfsImport import HdfsImport
-from main.src.utils.Utilities import SparkSettings
+from imports.HdfsImport import HdfsImport
 from mapper.Mapper import XmlMapper
+from utils.Utilities import SparkSettings
 
 start_time = time.time()
 
@@ -24,10 +24,12 @@ class XmlMapperTest(unittest.TestCase):
         # Create an object of class XmlMapper from Mapper.py by passing spark variable
         xml_mapper: XmlMapper = XmlMapper(sc=self.spark)
 
-        # Call createViews function by passing json_df dataframe, it returns 2 things flattening queries and XPATH (Only for XML; Ignore for JSON)
+        # Call createViews function by passing json_df dataframe, it returns 2 things flattening queries and XPATH (
+        # Only for XML; Ignore for JSON)
         view_queries = xml_mapper.createViews(df=json_df)
 
-        # Loop through all queries, execute them, physicalize flattened attributes as table - Repeat steps to all queries (Nested attributes)
+        # Loop through all queries, execute them, physicalize flattened attributes as table - Repeat steps to all
+        # queries (Nested attributes)
         for q in view_queries[0]:
             print(f'Executing query:'
                   f'{view_queries[0][q]}')
