@@ -15,9 +15,8 @@ class IMapper:
 class ComplexDataMapper(IMapper):
     outerselects = []
 
-    def __init__(self, sc, complex_typed_table_name):
+    def __init__(self, sc):
         self.spark: SparkSession = sc
-        self.complex_typed_table_name = complex_typed_table_name
 
     def getDataframeSchema(self, df: DataFrame) -> StructType:
         return df.schema
@@ -51,8 +50,8 @@ class ComplexDataMapper(IMapper):
     def createViews(self, df: DataFrame) -> {}:
         views = {}
         views, xpaths = self.complexTypeIterator(viewname="", viewpath="", database="",
-                                                 table=self.complex_typed_table_name, level=0,
-                                                 dtype=df.schema, acc={})
+                                                 table='xmltable', level=0,
+                                                 dtype=df.schema, acc={}, root_table_name='xmltable')
         return views, xpaths
 
     def handleStructType(self, viewname, viewpath, database, table, level, dtype, acc={}, xpath=[]) -> {}:
@@ -65,7 +64,8 @@ class ComplexDataMapper(IMapper):
                 selcols.append(f"t{level}.`{field.name}`")
                 viewname = field.name
                 viewpath = f"{table.replace('.', '_')}.{viewname.replace('.', '_')}"
-                query = f"SELECT t{level}.`{field.name}`.*, surrogate_{table}, ROW_NUMBER() OVER (ORDER BY current_timestamp) AS surrogate_{viewpath.replace('.', '_')} FROM {table} t{level}"
+                query = f"SELECT t{level}.`{field.name}`.*, t{level}.surrogate_id_{table}, ROW_NUMBER() OVER (ORDER BY " \
+                        f"current_timestamp) AS surrogate_id_{viewpath.replace('.', '_')} FROM {table} t{level} "
                 keynm = f"{table.replace('.', '_')}_{viewname}"
                 acc.update({keynm: query})
                 self.handleStructType(viewname=viewname, viewpath=viewpath, database=database, table=keynm, level=level,
@@ -76,9 +76,7 @@ class ComplexDataMapper(IMapper):
                 if str(arrtype.elementType).lower().startswith("struct"):
                     viewname = field.name
                     viewpath = f"{table.replace('.', '_')}.{viewname.replace('.', '_')}"
-                    query = f"SELECT v{level}.*, surrogate_{table}, ROW_NUMBER() OVER (ORDER BY current_timestamp) AS " \
-                            f"surrogate_id_{viewpath.replace('.', '_')} FROM {table} t{level} " \
-                            f"LATERAL VIEW INLINE(t{level}.`{field.name}`) v{level}"
+                    query = f"SELECT v{level}.*, t{level}.surrogate_id_{table}, ROW_NUMBER() OVER (ORDER BY current_timestamp) AS surrogate_id_{viewpath.replace('.', '_')} FROM {table} t{level} LATERAL VIEW INLINE(t{level}.`{field.name}`) v{level}"
                     keynm = f"{table.replace('.', '_')}_{viewname}"
                     acc.update({keynm: query})
                     self.handleStructType(viewname=viewname, viewpath=viewpath, database=database, table=keynm,
@@ -86,7 +84,7 @@ class ComplexDataMapper(IMapper):
                 else:
                     viewname = field.name
                     viewpath = f"{table.replace('.', '_')}.{viewname.replace('.', '_')}"
-                    query = f"SELECT v{level}.col AS {viewname}, surrogate_{table}, ROW_NUMBER() OVER (ORDER BY " \
+                    query = f"SELECT v{level}.col AS {viewname}, t{level}.surrogate_id_{table}, ROW_NUMBER() OVER (ORDER BY " \
                             f"current_timestamp) AS surrogate_id_{viewpath.replace('.', '_')} FROM {table} t{level} " \
                             f"LATERAL VIEW EXPLODE(t{level}.`{field.name}`) v{level}"
                     keynm = f"{table.replace('.', '_')}_{viewname}"
@@ -107,7 +105,7 @@ class ComplexDataMapper(IMapper):
             arr_struct_type: StructType = dtype.elementType
             viewname = arr_struct_type.name
             viewpath = f"{table.replace('.', '_')}.{viewname.replace('.', '_')}"
-            query = f"SELECT v{level}.*, surrogate_id_{table}, ROW_NUMBER() OVER (ORDER BY current_timestamp) AS " \
+            query = f"SELECT v{level}.*, t{level}.surrogate_id_{table}, ROW_NUMBER() OVER (ORDER BY current_timestamp) AS " \
                     f"surrogate_id_{viewpath.replace('.', '_')} FROM {table} t{level} " \
                     f"LATERAL VIEW INLINE(t{level}.`{arr_struct_type.name}`) v{level}"
             keynm = f"{table.replace('.', '_')}_{viewname}"
@@ -117,7 +115,7 @@ class ComplexDataMapper(IMapper):
         else:
             viewname = viewname
             viewpath = viewpath
-            query = f"SELECT v{level}.col AS {viewname}, surrogate_{table}, ROW_NUMBER() OVER (ORDER BY " \
+            query = f"SELECT v{level}.col AS {viewname}, t{level}.surrogate_id_{table}, ROW_NUMBER() OVER (ORDER BY " \
                     f"current_timestamp) AS surrogate_id_{viewpath.replace('.', '_')} FROM {table} t{level} " \
                     f"LATERAL VIEW EXPLODE(t{level}.`{viewname}`) v{level}"
             keynm = f"{table.replace('.', '_')}_{viewname}"
@@ -126,10 +124,10 @@ class ComplexDataMapper(IMapper):
         return acc, xpath
 
     def complexTypeIterator(self, viewname, viewpath, database, table, level,
-                            dtype: DataType, acc={}, xpath=[]) -> {}:
+                            dtype: DataType, acc={}, xpath=[], root_table_name='xmltable') -> {}:
         if viewname is None or str(viewname).__eq__(""):
             keynm = f"{table.replace('.', '_')}"
-            query = f"SELECT t{level}.*, ROW_NUMBER() OVER (ORDER BY current_timestamp) AS surrogate_id_{table} FROM {self.complex_typed_table_name} t{level}"
+            query = f"SELECT t{level}.*, ROW_NUMBER() OVER (ORDER BY current_timestamp) AS surrogate_id_{table} FROM {root_table_name} t{level}"
             acc.update({keynm: query})
             table = keynm
 
