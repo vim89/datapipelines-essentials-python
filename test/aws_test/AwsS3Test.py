@@ -4,12 +4,10 @@ import subprocess
 import unittest
 
 import boto3
-from pyspark.python.pyspark.shell import sc as spark_shell
-from pyspark.rdd import RDD
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.session import SparkSession
 
-from utils.Utilities import download_files_to_s3, zip_extract_filter
+from utils.Utilities import list_s3_files
 
 
 class AwsS3Test(unittest.TestCase):
@@ -17,15 +15,14 @@ class AwsS3Test(unittest.TestCase):
     def setUpClass(cls) -> None:
         # create an s3 connection that points to the moto server.
         cls.s3_resource_obj = boto3.resource(
-            "s3", endpoint_url="http://127.0.0.1:5000"
+            "s3",
+            endpoint_url="http://127.0.0.1:5000"
         )
 
         cls.s3_client_obj = boto3.client(
             "s3",
             endpoint_url="http://127.0.0.1:5000"
         )
-        # create an S3 bucket.
-        cls.s3_resource_obj.create_bucket(Bucket="bucket")
         # start moto server, by default it runs on localhost on port 5000.
         cls.process = subprocess.Popen(
             ['moto_server', 's3'],
@@ -33,6 +30,9 @@ class AwsS3Test(unittest.TestCase):
             shell=True,
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
         )
+
+        # create an S3 bucket.
+        cls.s3_resource_obj.create_bucket(Bucket="bucket")
 
         # # configure pyspark to use hadoop-aws module. os.environ[ "PYSPARK_SUBMIT_ARGS" ] = '--packages
         # "org.apache.hadoop:hadoop-aws:2.7.3" --packages "org.apache.httpcomponents:httpclient:4.2.5" ' \
@@ -63,17 +63,41 @@ class AwsS3Test(unittest.TestCase):
         df.show()
         # assert df is a DataFrame
         assert isinstance(df, DataFrame)
+
         print("test_s3_glue_jobs_locally successfully completed")
 
     @classmethod
-    def test_download_files_to_s3(cls):
-        download_files_to_s3(s3_client_obj=cls.s3_client_obj,
-                             download_file_url='https://github.com/vim89/covid19/archive/master.zip',
-                             target_filename='clinical_study.zip', bucket_name="bucket")
-        zip_file: RDD = spark_shell.binaryFiles("s3://bucket/clinical_study.zip")
-        file_names_rdd: RDD = zip_file.map(
-            lambda f: zip_extract_filter(f, filter_condition='ends_with', filter_pattern='.py'))
-        print(file_names_rdd.take(10))
+    def test_3_create_directory_files_s3(cls):
+        some_binary_data = b'Here we have some data'
+
+        cls.s3_client_obj.put_object(Bucket="bucket", Key=("dir1" + '/'))
+        cls.s3_client_obj.put_object(Body=some_binary_data, Bucket='bucket', Key='dir1/dir1.txt')
+
+        cls.s3_client_obj.put_object(Bucket="bucket", Key=("dir1/subdir1" + '/'))
+        cls.s3_client_obj.put_object(Body=some_binary_data, Bucket='bucket', Key='dir1/subdir1/dir1_subdir1.txt')
+
+        cls.s3_client_obj.put_object(Bucket="bucket", Key=("dir1/subdir2" + '/'))
+        cls.s3_client_obj.put_object(Body=some_binary_data, Bucket='bucket', Key='dir1/subdi2/dir1_subdir2.txt')
+
+        cls.s3_client_obj.put_object(Bucket="bucket", Key="dir2/")
+        cls.s3_client_obj.put_object(Body=some_binary_data, Bucket='bucket', Key='dir2/dir2.txt')
+
+        cls.s3_client_obj.put_object(Bucket="bucket", Key="dir2/subdir1/")
+        cls.s3_client_obj.put_object(Body=some_binary_data, Bucket='bucket', Key='dir2/subdir1/dir2_subdir1.txt')
+
+        cls.s3_client_obj.put_object(Bucket="bucket", Key="dir2/subdir2/")
+        cls.s3_client_obj.put_object(Body=some_binary_data, Bucket='bucket', Key='dir2/subdir2/dir2_subdir2.txt')
+
+        contents = list_s3_files(opt={'Bucket': 'bucket'})
+        print(contents)
+        contents = list_s3_files(opt={'Bucket': 'bucket'}, files_only=True)
+        print(contents)
+        contents = list_s3_files(opt={'Bucket': 'bucket'}, files_only=True,
+                                 file_extension='.csv')
+        print(contents)
+        contents = list_s3_files(opt={'Bucket': 'bucket'}, files_only=True,
+                                 file_extension='.xml')
+        print(contents)
 
     @classmethod
     def tearDownClass(cls) -> None:

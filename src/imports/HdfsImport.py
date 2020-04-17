@@ -1,4 +1,5 @@
 import abc
+from abc import ABC
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
@@ -18,7 +19,7 @@ class IImport:
     def cleanup(self, location): None
 
 
-class HdfsImport(IImport):
+class HdfsImport(IImport, ABC):
     def __init__(self, spark: SparkSession):
         self.spark = spark
 
