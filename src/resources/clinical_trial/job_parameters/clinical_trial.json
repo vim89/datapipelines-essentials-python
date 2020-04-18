@@ -1,0 +1,49 @@
+{
+  "clinical_trial_etl": {
+    "bucket": "dev",
+    "landing_directory": "data/raw/clinical_trial_landing",
+    "staging_directory": "data/raw/clinical_trial_staging",
+    "download_url_prefix_test": "https://github.com/vim89/datalake-etl-pipeline/raw/master/src/resources/clinical_trial/data/chunk",
+    "download_url_prefix": "https://clinicaltrials.gov/ct2/download_studies?down_chunk=",
+    "max_chunk_range": 2,
+    "download_target_filename": "clinical_studies.zip",
+    "xml_closing_tag": "clinical_study",
+    "xml_root_tag": "clinical_study",
+    "xml_row_tag": "clinical_study",
+    "xml_attribute_tag": "xml_attribute_value",
+    "xml_attribute_prefix": "xmlattribute_",
+    "xml_value_tag": "xml_value_tag",
+    "audit_columns_definition": [
+      "reverse(split(input_file_name(), '/'))[0] AS xml_file_name",
+      "CAST('{ts}' AS TIMESTAMP) AS spark_timestamp"
+    ],
+    "audit_columns": [
+      "xml_file_name",
+      "spark_timestamp"
+    ],
+    "timestamp_column": [
+      "spark_timestamp"
+    ],
+    "primary_keys": [
+      "id_info.nct_id",
+      "xml_file_name"
+    ],
+    "primary_keys_cascade_to_leaf_level_with_alias": [
+      "id_info.nct_id AS pk_nct_id",
+      "spark_timestamp AS spark_ts"
+    ],
+    "order_by_keys": [
+      "spark_timestamp"
+    ],
+    "hashcode_column": [
+      "hashcode"
+    ],
+    "target_primary_keys": [
+      "nct_id"
+    ],
+    "hashcode_encryption_type": "md5",
+    "cdc_staging_data_write_mode": "append",
+    "audit_directory": "audit/",
+    "job_name": "clinical_trial_etl"
+  }
+}

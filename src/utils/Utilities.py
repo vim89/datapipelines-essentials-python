@@ -95,11 +95,12 @@ def delete_s3_bucket(bucket_name):
 
 def download_file_from_web(download_file_url, tgt_file_name):
     try:
-        page = urllib.request.urlretrieve(download_file_url, f"/tmp/{tgt_file_name}")
+        page = urllib.request.urlretrieve(download_file_url, tgt_file_name)
+        print(f"Download {tgt_file_name} complete!")
     except http.client.IncompleteRead as e:
         page = e.partial
-    print(f"Download /tmp/{tgt_file_name} complete!")
-    return f"/tmp/{tgt_file_name}"
+
+    print(page)
 
 
 def upload_to_s3(file_name, bucket, prefix=None):
@@ -107,9 +108,9 @@ def upload_to_s3(file_name, bucket, prefix=None):
     # s3_client_obj = boto3.client('s3')
     s3_client_obj = boto3.client('s3', endpoint_url="http://127.0.0.1:5000")  # For local machines usinf moto3 server
     if prefix is not None and not str(prefix).strip().__eq__(''):
-        s3_client_obj.put_object(Bucket=bucket, Key=f"{prefix}/")
+        s3_client_obj.put_object(Bucket=bucket, Key=f"{prefix.rstrip('/')}/")
         s3_client_obj.upload_file(Filename=file_name, Bucket=bucket,
-                                  Key=f'{prefix}/{file_name.split("/")[-1]}')
+                                  Key=f'{prefix.rstrip("/")}/{file_name.split("/")[-1]}')
     else:
         s3_client_obj.upload_file(Filename=file_name, Bucket=bucket,
                                   Key=file_name.split('/')[-1])
@@ -154,7 +155,7 @@ def zip_extract(x):
     return file_obj.namelist()
 
 
-def get_file_names_in_zip(zip_file, filter_pattern, filter_condition):
+def get_file_names_in_zip(zip_file_path, filter_pattern, filter_condition):
     def apply_filter(f):
         if str(filter_condition).__eq__('ends_with'):
             return str(f).endswith(filter_pattern)
@@ -163,7 +164,7 @@ def get_file_names_in_zip(zip_file, filter_pattern, filter_condition):
         else:
             return str(f).__contains__(filter_pattern)
 
-    zip_file_obj = zipfile.ZipFile(zip_file, "r")
+    zip_file_obj = zipfile.ZipFile(zip_file_path, "r")
     files = list(filter(apply_filter, zip_file_obj.namelist()))
     return files
 
