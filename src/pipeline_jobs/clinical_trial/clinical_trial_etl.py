@@ -221,9 +221,10 @@ def main():
             # tmp_df.show()
 
         # Use transformation queries to on subset views to flatten the XML to RDBMS
-        # Make sure to join child with parent on natural key and surroagate keys of parent
-        sql_transformation_files = list(map(lambda query_file: f"../../resources/sql/transformations/{query_file}",
-                                            listdir('../../resources/clinical_trial/sql/transformations')))
+        # Make sure to join child with parent on natural key and surrogate ids of parent
+        sql_transformation_files = list(
+            map(lambda query_file: f"../../resources/clinical_trial/sql/transformations/{query_file}",
+                listdir('../../resources/clinical_trial/sql/transformations')))
         db_options = {'url': f'jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password',
                       'truncate': 'true'}
         schema = 'ingest'
