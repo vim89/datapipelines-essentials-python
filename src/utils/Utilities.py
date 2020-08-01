@@ -12,6 +12,14 @@ from tabulate import tabulate
 from tqdm import tqdm
 
 
+def return_valid_url(u):
+    ret_code, is_valid = is_url_valid(url=u)
+    if is_valid:
+        return True
+    else:
+        return False
+
+
 def create_local_aws_s3_platform(spark: SparkSession):
     s3_resource_obj = boto3.resource('s3', endpoint_url="http://127.0.0.1:5000")
     s3_client_obj = boto3.client('s3', endpoint_url="http://127.0.0.1:5000")
@@ -127,7 +135,7 @@ def progress_bar(tgt_file_name, current, total, width=80):
 
 def is_url_valid(url):
     print(f"Checking if {url} is valid..?")
-    request = requests.get(url)
+    request = requests.get(url, verify=False)
     return_code = request.status_code
     return return_code, return_code == 200
 

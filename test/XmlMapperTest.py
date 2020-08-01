@@ -1,7 +1,5 @@
 import unittest
 
-from pyspark.sql.functions import explode
-
 from imports.HdfsImport import HdfsImport
 from mapper.Mapper import ComplexDataMapper
 from utils.Utilities import SparkSettings
@@ -15,7 +13,7 @@ class XmlMapperTest(unittest.TestCase):
         self.hdfsImport = HdfsImport(self.spark)
 
         # Read JSON file from given path
-        json_df = self.spark.read.json(path='resources/citeline/*.json').select(explode('items').alias('item'))
+        json_df = self.spark.read.json(path='resources/clinical_trial/*.xml')
 
         json_df.printSchema()
 
