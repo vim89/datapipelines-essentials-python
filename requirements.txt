@@ -22,7 +22,7 @@ click==7.1.1
 colorama==0.4.3
 cookiecutter==1.6.0
 crayons==0.3.0
-cryptography==2.8
+cryptography==3.2
 dateparser==0.7.5
 decorator==4.4.2
 dict==0.0.0
