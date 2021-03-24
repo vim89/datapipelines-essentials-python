@@ -101,7 +101,7 @@ regex==2020.6.8
 requests==2.23.0
 responses==0.10.12
 retry-decorator==1.1.1
-rsa==3.4.2
+rsa==4.1
 s3transfer==0.3.3
 scramp==1.1.0
 serverlessrepo==0.1.9
