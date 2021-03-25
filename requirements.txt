@@ -96,7 +96,7 @@ pytz==2019.3
 pyu2f==0.1.4
 pywin32==227
 PyXB==1.2.6
-PyYAML==5.3.1
+PyYAML==5.4
 regex==2020.6.8
 requests==2.23.0
 responses==0.10.12
