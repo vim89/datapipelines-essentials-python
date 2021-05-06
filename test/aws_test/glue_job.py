@@ -37,8 +37,8 @@ def _commit_job(job):
 
 def _get_glue_args(cli_args):
     from awsglue.utils import getResolvedOptions
-
-    glue_args = getResolvedOptions(args=sys.argv, options=["JOB_NAME"] + cli_args)
+    glue_args = getResolvedOptions(args=cli_args, options=["JOB_NAME", "source", "destination"])
+    print(glue_args)
     return glue_args
 
 

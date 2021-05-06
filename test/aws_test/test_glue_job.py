@@ -1,6 +1,7 @@
 import os
 import signal
 import subprocess
+import sys
 import unittest
 from unittest import mock
 
@@ -8,6 +9,7 @@ import boto3
 from pyspark.sql import SparkSession
 
 from aws_test import glue_job
+from utils.Utilities import delete_s3_bucket
 
 
 class TestGlueJob(unittest.TestCase):
@@ -30,6 +32,9 @@ class TestGlueJob(unittest.TestCase):
         # shell=True, preexec_fn=os.setsid()
         # )
 
+        os.environ['AWS_ACCESS_KEY_ID'] = 'test'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = 'test'
+
         cls.process = subprocess.Popen(
             ['moto_server', 's3'],
             stdout=subprocess.PIPE,
@@ -43,6 +48,7 @@ class TestGlueJob(unittest.TestCase):
             endpoint_url=S3_MOCK_ENDPOINT
         )
         bucket = "bucket"
+        delete_s3_bucket(bucket)
         cls.s3_conn.create_bucket(Bucket=bucket)
         cls.s3_source = "s3://{}/{}".format(bucket, "source.csv")
         cls.s3_destination = "s3://{}/{}".format(bucket, "destination.csv")
@@ -50,7 +56,7 @@ class TestGlueJob(unittest.TestCase):
         # Setup spark to use s3, and point it to the moto server.
         os.environ[
             "PYSPARK_SUBMIT_ARGS"
-        ] = """--packages "org.apache.hadoop:hadoop-aws:2.7.3" pyspark-shell"""
+        ] = """--packages "org.apache.hadoop:hadoop-aws:2.7.4" pyspark-shell"""
         cls.spark = SparkSession.builder.getOrCreate()
         hadoop_conf = cls.spark.sparkContext._jsc.hadoopConfiguration()
         hadoop_conf.set("fs.s3.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
@@ -74,7 +80,7 @@ class TestGlueJob(unittest.TestCase):
         we run our glue job and assert if the result is what we expect.
         """
         # arrange
-        cli_args = {"source": self.s3_source, "destination": self.s3_destination}
+        cli_args = {"--JOBNAME": 'TestGlueLocal', "--source": self.s3_source, "--destination": self.s3_destination}
 
         m_session_job.return_value = self.spark, None
         m_get_glue_args.return_value = cli_args
