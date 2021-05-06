@@ -1,42 +1,34 @@
-import string
+import getpass
 import unittest
 
-from join_sample import transformSplitExplodeField
-from pyspark.sql import DataFrame
-
-from utils.Utilities import SparkSettings
+from utils.Utilities import create_spark_session, count_words, split_words
+from utils.transformation_extension import *
 
 
 class UtilsTest(unittest.TestCase):
 
     def test1_testSparkSettings(self):
         print("Testing Spark Settings")
-        self.sparksettings = SparkSettings("UtilsTest")
-        self.spark = self.sparksettings.getSparkSession()
-        self.assertEqual(str(self.spark.version), "2.3.4")
-        self.assertEqual(str(self.spark.sparkContext.sparkUser()).lower(), "vimirji")
+        self.spark = create_spark_session(application_name="Utils Test")
+        self.assertEqual(str(self.spark.version), "2.4.5")
+        self.assertEqual(str(self.spark.sparkContext.sparkUser()), getpass.getuser())
 
         metadf: DataFrame = self.spark.read.option("header", "true").format("csv").load(path="resources/meta.csv")
 
         self.assertEqual(True, True)
 
-    def test2_testEnvironment(self):
+    def test2_test_custom_transformations(self):
         print("Testing Environment")
-        self.sparksettings = SparkSettings("UtilsTest")
-        self.spark = self.sparksettings.getSparkSession()
-        self.assertEqual(self.sparksettings.environment.name, "local")
+        self.spark = create_spark_session(application_name="Utils Test")
+        line_array = ["Hello,World,How,are,you", "Hello.World.How.are.you", "Hello;World;How;are;you",
+                      "Hello-World-How-are-you", "Hello|World|How|are|you", "Hello World How are you"]
 
-        data = [(1, '|'.join(string.ascii_lowercase), 'Tavneet')]
+        lines_rdd: RDD[str] = self.spark.sparkContext.parallelize(line_array)
+        df = lines_rdd.transform(lambda _rdd: split_words(_rdd)).transform(lambda _rdd: count_words(_rdd))
+        df.toDF().toDF("Word", "Count").show()
 
-        df = self.spark.createDataFrame(data).toDF('id', 'categorylist', 'name')
-        print('Input dataframe')
-        df.show()
-
-        newdf: DataFrame = transformSplitExplodeField(sc=self.spark, df=df, splitfield='categorylist',
-                                                      splitseperator='|')
-
-        print('Output Dataframe')
-        newdf.show(100)
+        self.assertTrue(df is not None)
+        self.assertEqual(df.count(), 5)
 
 
 if __name__ == '__main__':

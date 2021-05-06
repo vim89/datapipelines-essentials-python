@@ -1,15 +1,28 @@
 import http
 import io
 import os
+import re
 import urllib
 import zipfile
 from collections import OrderedDict
+from typing import Optional
 
 import boto3
 import requests
+from pyspark import RDD
 from pyspark.sql import *
 from tabulate import tabulate
 from tqdm import tqdm
+from pyspark.sql.types import StringType
+
+
+def split_words(rdd_data):
+    return rdd_data.map(lambda line: re.split('[\\s,.;|\\-]', line)).flatMap(
+        lambda word: word if len(word) > 1 else "")
+
+
+def count_words(rdd_data):
+    return rdd_data.map(lambda word: (word, 1)).reduceByKey(lambda v1, v2: v1 + v2)
 
 
 def return_valid_url(u):
