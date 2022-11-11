@@ -1,4 +1,4 @@
-pyspark==2.4.5
+pyspark==3.2.2
 pyspark-stubs==2.4.0.post7
 psycopg2-binary
 psycopg2
