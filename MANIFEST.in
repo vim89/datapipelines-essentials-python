@@ -1,0 +1,5 @@
+recursive-include sbin *.sh
+recursive-include conf *.html *.json *.conf *.properties *.html
+recursive-include resources *.html
+recursive-include logs logs log-sample
+recursive-include docs *.md

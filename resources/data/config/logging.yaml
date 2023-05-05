@@ -1,0 +1,41 @@
+version: 1
+objects:
+  queue:
+    class: queue.Queue
+    maxsize: 1000
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  detailed:
+    format: '%(asctime)s %(name)-15s %(levelname)-8s %(process)-10d %(funcName)-30s %(message)s'
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: detailed
+    stream: ext://sys.stdout
+  console_colored:
+    class: utils.logging_util.ColoredLogger
+    name: 'Colored'
+  file:
+    class: logging.FileHandler
+    level: DEBUG
+    encoding: 'utf-8'
+    formatter: detailed
+    filename: ../../logs/log-data-pipeline_{timestamp_placeholder}.log
+    mode: a
+  queue:
+    class: utils.logging_util.QueueListenerHandler
+    level: DEBUG
+    handlers:
+      - cfg://handlers.console
+      - cfg://handlers.file
+    queue: cfg://objects.queue
+loggers:
+  simpleExample:
+    level: INFO
+    handlers: [console, file, queue]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [console, file]

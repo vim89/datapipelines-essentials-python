@@ -1,0 +1,28 @@
+2023-04-18T18:06:35+05:30: EXECUTION-LOG - [0m55729 - Executing create_python_venv.sh on m-c02f6224md6n with arguments
+2023-04-18T18:06:35+05:30: EXECUTION-LOG - [93mWARN 55729 - Checking if python3 is installed on machine[0m
+2023-04-18T18:06:35+05:30: EXECUTION-LOG - /Library/Frameworks/Python.framework/Versions/3.9/bin/python3
+2023-04-18T18:06:35+05:30: EXECUTION-LOG - [0m55729 - python3 already installed on machine
+2023-04-18T18:06:35+05:30: EXECUTION-LOG - [93mWARN 55729 - Checking if pip tool is installed on machine or attempt to download from internet & install[0m
+2023-04-18T18:06:36+05:30: EXECUTION-LOG - pip 21.1.3 from /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/pip (python 3.9)
+2023-04-18T18:06:36+05:30: EXECUTION-LOG - [0m55729 - pip tool already available on machine
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Defaulting to user installation because normal site-packages is not writeable
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: virtualenvwrapper in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (4.8.4)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: virtualenv in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (from virtualenvwrapper) (20.4.7)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: virtualenv-clone in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (from virtualenvwrapper) (0.5.4)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: stevedore in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (from virtualenvwrapper) (3.3.0)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: pbr!=2.1.0,>=2.0.0 in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (from stevedore->virtualenvwrapper) (5.6.0)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: six<2,>=1.9.0 in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (from virtualenv->virtualenvwrapper) (1.16.0)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: appdirs<2,>=1.4.3 in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (from virtualenv->virtualenvwrapper) (1.4.4)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: distlib<1,>=0.3.1 in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (from virtualenv->virtualenvwrapper) (0.3.2)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - Requirement already satisfied: filelock<4,>=3.0.0 in /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages (from virtualenv->virtualenvwrapper) (3.0.12)
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - [33mDEBUG 55729 - Using below environment variables & path for virtual environment test[0m
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - [33mDEBUG 55729 - VIRTUALENVWRAPPER_PYTHON=/Library/Frameworks/Python.framework/Versions/3.9/bin/python3[0m
+2023-04-18T18:06:37+05:30: EXECUTION-LOG - [33mDEBUG 55729 - WORKON_HOME=~/python_venvs/[0m
+2023-04-18T18:06:40+05:30: EXECUTION-LOG - created virtual environment CPython3.9.5.final.0-64 in 1454ms
+2023-04-18T18:06:40+05:30: EXECUTION-LOG - creator CPython3Posix(dest=/Users/v0m02sj/python_venvs/test, clear=False, no_vcs_ignore=False, global=False)
+2023-04-18T18:06:40+05:30: EXECUTION-LOG - seeder FromAppData(download=False, pip=bundle, setuptools=bundle, wheel=bundle, via=copy, app_data_dir=/Users/v0m02sj/Library/Application Support/virtualenv)
+2023-04-18T18:06:40+05:30: EXECUTION-LOG - added seed packages: pip==21.1.2, setuptools==57.0.0, wheel==0.36.2
+2023-04-18T18:06:40+05:30: EXECUTION-LOG - activators BashActivator,CShellActivator,FishActivator,PowerShellActivator,PythonActivator,XonshActivator
+2023-04-18T18:06:40+05:30: EXECUTION-LOG - Setting project for test to /Users/v0m02sj/PycharmProjects/vim89-data-engineering-test
+2023-04-18T18:06:46+05:30: EXECUTION-LOG - Removing test...
+2023-04-18T18:06:47+05:30: EXECUTION-LOG - [0m55729 - Process finished successfully, logs can be found at /Users/v0m02sj/PycharmProjects/vim89-data-engineering-test/scripts/bin/../logs/log-python-venv-setup-test-2023-04-18-18.06.35.log

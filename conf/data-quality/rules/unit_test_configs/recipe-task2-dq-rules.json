@@ -1,0 +1,26 @@
+{
+  "dq_id": 101,
+  "execution_reports_dir": "<project-root-place-holder>/resources/data-quality-reports/recipe-tasks",
+  "email_execution_report_to": "vitthalmirji@gmail.com",
+  "rules": [
+    {
+      "rule_id": 1015,
+      "name": "Primary / Natural Keys",
+      "description": "Primary / Natural Keys should not have duplicates",
+      "rule_type": "unique",
+      "columns": [
+        "difficulty"
+      ]
+    },
+    {
+      "rule_id": 1016,
+      "name": "NOT NULL fields",
+      "description": "Field should have valid value",
+      "rule_type": "not null",
+      "columns": [
+        "difficulty",
+        "avg_total_cooking_time"
+      ]
+    }
+  ]
+}

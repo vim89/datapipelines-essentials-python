@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "default_settings": {
+    "max_parallel_spark_submit_process": 6,
+    "history_load_interval_in_days": 30
+  },
+  "command_line_args": [
+    {
+      "name": "workflow",
+      "type": "string",
+      "default": "None"
+    },
+    {
+      "name": "startDate",
+      "type": "string",
+      "default": "None"
+    },
+    {
+      "name": "endDate",
+      "type": "string",
+      "default": "None"
+    },
+    {
+      "name": "refreshType",
+      "type": "string",
+      "default": "None"
+    },
+    {
+      "name": "dq_enabled",
+      "type": "string",
+      "default": "N"
+    },
+    {
+      "name": "configFile",
+      "type": "string",
+      "default": "/u/users/svcdvchnlperf/adhoc/config-prod.yml"
+    }
+  ],
+  "spark_submit_options_order": {
+    "spark-submit": {
+      "priority": 0,
+      "required": false,
+      "value": ""
+    },
+    "--master": {
+      "priority": 1,
+      "required": true,
+      "value": "yarn"
+    },
+    "--deploy-mode": {
+      "priority": 2,
+      "required": true,
+      "value": "cluster"
+    },
+    "--executor-cores": {
+      "priority": 3,
+      "required": true,
+      "value": 5
+    },
+    "--executor-memory": {
+      "priority": 4,
+      "required": true,
+      "value": "4g"
+    },
+    "--num-executors": {
+      "priority": 5,
+      "required": true,
+      "value": 20
+    },
+    "--driver-memory": {
+      "priority": 6,
+      "required": true,
+      "value": "6g"
+    },
+    "--name": {
+      "priority": 7,
+      "required": false,
+      "value": "Channel Performance Spark Job"
+    },
+    "--driver-java-options": {
+      "priority": 8,
+      "required": true,
+      "value": "<placeholder>"
+    },
+    "--conf": {
+      "priority": 9,
+      "required": true,
+      "value": "\"spark.executor.memory=4g\""
+    },
+    "--jars": {
+      "priority": 10,
+      "required": true,
+      "value": "\"/u/users/svcdvchnlperf/adhoc/ScalaSparkArchetypeCore-1.9.3-bundled.jar\""
+    },
+    "--files": {
+      "priority": 11,
+      "required": true,
+      "value": "\"/u/users/svcdvchnlperf/adhoc/connections/connection.yaml,/u/users/svcdvchnlperf/adhoc/connections/job.yaml\""
+    },
+    "--class": {
+      "priority": 12,
+      "required": true,
+      "value": "com.walmartlabs.channel.perf.WorkflowController <full-jar-path>"
+    },
+    "--class_arguments": {
+      "priority": 13,
+      "required": false,
+      "value": {
+        "workflow": "<placeholder>",
+        "dq_enabled": "<placeholder>",
+        "startDate": "<placeholder>",
+        "endDate": "<placeholder>",
+        "refreshType": "<placeholder>",
+        "configFile": "<placeholder>"
+      }
+    }
+  },
+  "spark_submit_options_filter": [
+    "primary_keys",
+    "ADHOC_SCHEMA_GCS_BUCKET",
+    "STG_SCHEMA_GCS_BUCKET",
+    "APP_SCHEMA_GCS_BUCKET",
+    "ADHOC_SCHEMA",
+    "STG_SCHEMA",
+    "APP_SCHEMA",
+    "env",
+    "enableservices",
+    "runmode",
+    "srcrcvts",
+    "userId"
+  ]
+}

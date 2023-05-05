@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "objects": {
+    "queue": {
+      "class": "queue.Queue",
+      "maxsize": 1000
+    }
+  },
+  "formatters": {
+    "simple": {
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "detailed": {
+      "format": "%(asctime)s %(name)-15s %(levelname)-8s %(process)-10d %(funcName)-30s %(message)s"
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "level": "DEBUG",
+      "formatter": "detailed",
+      "stream": "ext://sys.stdout"
+    },
+    "file": {
+      "class": "logging.FileHandler",
+      "level": "DEBUG",
+      "encoding": "utf-8",
+      "formatter": "detailed",
+      "filename": "logs/log-{job_name_placeholder}_{timestamp_placeholder}.log",
+      "mode": "a"
+    }
+  },
+  "loggers": {
+    "simple": {
+      "level": "INFO",
+      "handlers": [
+        "console"
+      ],
+      "propagate": "no"
+    },
+    "unit-tests": {
+      "level": "DEBUG",
+      "handlers": [
+        "console"
+      ],
+      "propagate": "no"
+    }
+  },
+  "root": {
+    "level": "DEBUG",
+    "handlers": [
+      "console",
+      "file"
+    ]
+  }
+}

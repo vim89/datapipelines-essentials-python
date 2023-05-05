@@ -1,0 +1,4 @@
+version: 1
+default_settings:
+  max_parallel_spark_submit_process: 5
+  history_load_interval_in_days: 30

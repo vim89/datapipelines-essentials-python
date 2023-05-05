@@ -1,0 +1,4 @@
+2023-04-19 01:32:44,837 root            INFO     63460      init_logging                   Logging initiated; appending logs to /Users/v0m02sj/PycharmProjects/vim89-data-engineering-test/logs/python/log-Hello-World_2023-04-19T01-32-44-810431.log
+2023-04-19 01:32:44,837 root            WARNING  63460      main                           HelloFresh Recipes Data Engineering
+2023-04-19 01:32:44,838 root            WARNING  63460      get_or_create_spark_session    Creating spark session first time with configs [{'key': 'spark.app.name', 'value': ''}]
+2023-04-19 01:32:44,838 root            INFO     63460      read_data_as_spark_dataframe   Attempting to read json in spark using configs {'encoding': 'UTF-8'} from location /Users/v0m02sj/PycharmProjects/vim89-data-engineering-test/resources/input

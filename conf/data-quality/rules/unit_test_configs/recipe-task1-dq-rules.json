@@ -1,0 +1,41 @@
+{
+  "dq_id": 101,
+  "execution_reports_dir": "<project-root-place-holder>/resources/data-quality-reports/recipe-tasks",
+  "email_execution_report_to": "vitthalmirji@gmail.com",
+  "rules": [
+    {
+      "rule_id": 1011,
+      "name": "Primary / Natural Keys",
+      "description": "Primary / Natural Keys should not have duplicates",
+      "rule_type": "unique",
+      "columns": [
+        "name"
+      ]
+    },
+    {
+      "rule_id": 1012,
+      "name": "NOT NULL fields",
+      "description": "Field should have valid value",
+      "rule_type": "not null",
+      "columns": [
+        "name",
+        "cookTime",
+        "prepTime"
+      ]
+    },
+    {
+      "rule_id": 1013,
+      "name": "Input files check",
+      "description": "Check If all input files are read for processing",
+      "rule_type": "query",
+      "query": "WITH file_names AS (SELECT 'recipes-000.json' AS file_name UNION SELECT 'recipes-001.json' AS file_name UNION SELECT 'recipes-002.json' AS file_name)\nSELECT f.file_name FROM file_names f\nLEFT JOIN (SELECT DISTINCT reverse(split(input_file_name(), '/'))[0] as file_name FROM temp) t\nON t.file_name = f.file_name\nWHERE t.file_name IS NULL"
+    },
+    {
+      "rule_id": 1014,
+      "name": "\"Check for invalid cook & prep time",
+      "description": "Check empty or null values",
+      "rule_type": "query",
+      "query": "SELECT * FROM temp WHERE cookTime = '' OR prepTime = ''"
+    }
+  ]
+}
